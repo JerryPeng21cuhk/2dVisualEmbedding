@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>demo</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				color: #ffffff;
+				background-color: #ffffff;
+				margin: 0px;
+				overflow: hidden;
+			}
+			#info {
+				position: absolute;
+				top: 0px;
+				width: 100%;
+				padding: 5px;
+				font-family: Monospace;
+				font-size: 13px;
+				text-align: center;
+				font-weight: bold;
+			}
+			a {
+				color: #fff;
+			}
+		</style>
+
+		<!-- List items with avatar and action -->
+		<style>
+			.demo-list-control {
+			    width: 230px;
+			}
+
+			.demo-list-radio {
+			    display: inline;
+			}
+
+		</style>
+	</head>
+
+
+
+
+	<body>
+		<link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+		<link rel="stylesheet" href="https://code.getmdl.io/1.3.0/material.blue_grey-deep_orange.min.css" />
+		<script defer src="https://code.getmdl.io/1.3.0/material.min.js"></script>
+    <!-- <script src="https://unpkg.com/wavesurfer.js/dist/wavesurfer.js"></script> -->
+    <script src="//cdnjs.cloudflare.com/ajax/libs/wavesurfer.js/1.4.0/wavesurfer.min.js"></script>
+    <!-- spectrogram format renderer -->
+    <!-- <script src="https://unpkg.com/wavesurfer.js/dist/plugin/wavesurfer.spectrogram.js"></script> -->
+
+		
+    
+		<!-- <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.css"> -->
+		
+
+
+		<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/87/three.min.js"></script> -->
+		<script src="https://threejs.org/build/three.js"></script>
+		<script src="./js/OrbitControls.js"></script>
+		<script src="https://d3js.org/d3.v4.min.js"></script>
+		<script src="https://rawgit.com/mrdoob/stats.js/master/build/stats.min.js"></script>
+
+		<!-- The drawer is always open in large screens. The header is always shown,
+		  even in small screens. -->
+		<div class="mdl-layout mdl-js-layout mdl-layout--fixed-drawer
+            		mdl-layout--fixed-header">
+      <header class="mdl-layout__header">
+        <div id='header' class="mdl-layout__header-row">
+          <div class="mdl-layout-spacer"></div>
+					<nav class="mdl-navigation">
+						<h6 id="fileinfo"></h6>
+					</nav>
+					<div class="mdl-layout-spacer"></div>
+          <div class="mdl-textfield mdl-js-textfield mdl-textfield--expandable
+                      mdl-textfield--floating-label mdl-textfield--align-right">
+	          <div class="mdl-textfield__expandable-holder">
+	            <input class="mdl-textfield__input" type="text" name="sample"
+	                      id="fixed-header-drawer-exp">
+	          </div>
+          </div>
+        </div>
+			</header>
+
+		        <div class="mdl-layout__drawer" id='drawer'>
+		            <span class="mdl-layout-title">Audio Explorer</span>
+	            	<nav class="mdl-navigation">
+
+						<ul class="demo-list-control mdl-list">
+							<li class="mdl-list__item">
+								<span class="mdl-list__item-primary-content">
+									mfvae
+								</span>
+								<span class="mdl-list__item-secondary-action">
+									<label class="demo-list-radio mdl-radio mdl-js-radio mdl-js-ripple-effect" for="embedder-list-option-1">
+										<input type="radio" id="embedder-list-option-1" class="mdl-radio__button" name="embedderoptions" value="mfvae" oninput="updateDataAll()" onchange="updateDataAll()" checked />
+									</label>
+								</span>
+							</li>
+
+							<!-- <li class="mdl-list__item">
+								<span class="mdl-list__item-primary-content">
+                                    i-vector
+								</span>
+								<span class="mdl-list__item-secondary-action">
+									<label class="demo-list-radio mdl-radio mdl-js-radio mdl-js-ripple-effect" for="embedder-list-option-2">
+										<input type="radio" id="embedder-list-option-2" class="mdl-radio__button" name="embedderoptions" value="ivector" oninput="updateDataAll()" onchange="updateDataAll()" />
+									</label>
+								</span>
+							</li> -->
+
+
+							<!-- <li class="mdl-list__item">
+								<span class="mdl-list__item-primary-content">
+                                    x-vector
+								</span>
+								<span class="mdl-list__item-secondary-action">
+									<label class="demo-list-radio mdl-radio mdl-js-radio mdl-js-ripple-effect" for="embedder-list-option-3">
+										<input type="radio" id="embedder-list-option-3" class="mdl-radio__button" name="embedderoptions" value="xvector" oninput="updateDataAll()" onchange="updateDataAll()" />
+									</label>
+								</span>
+							</li> -->
+
+						</ul>
+					</nav>
+
+						<hr>
+
+					<nav class="mdl-navigation">
+						<ul class="demo-list-control mdl-list">
+							<li class="mdl-list__item">
+								<span class="mdl-list__item-primary-content">
+									t-SNE
+								</span>
+								<span class="mdl-list__item-secondary-action">
+									<label class="demo-list-radio mdl-radio mdl-js-radio mdl-js-ripple-effect" for="visual-list-option-1">
+										<input type="radio" id="visual-list-option-1" class="mdl-radio__button" name="visualoptions" value="tsne" oninput="updateDataPosition()" onchange="updateDataPosition()" checked />
+									</label>
+								</span>
+							</li>
+						</ul>
+
+						<!-- <div id="sliders">
+							<p style="width:230px">
+								<div class="mdl-card__supporting-text">
+									<p id="slider-text-1">Neighbours</p>
+								</div>
+								<input class="mdl-slider mdl-js-slider" type="range" id="slider1" min="1" max="5" step="1" oninput="updateDataPosition()" onchange="updateDataPosition()">
+								<div class="mdl-card__supporting-text">
+									<p id="slider-text-2">Distances</p>
+								</div>
+								<input class="mdl-slider mdl-js-slider" type="range" id="slider2" min="1" max="5" step="1" oninput="updateDataPosition()" onchange="updateDataPosition()">
+							</p>
+                        </div> -->
+					</nav>
+
+						<hr>
+
+					<nav class="mdl-navigation">
+						<ul class="demo-list-control mdl-list">
+							<li class="mdl-list__item">
+								<span class="mdl-list__item-primary-content">
+                                    Speaker Label
+								</span>
+								<span class="mdl-list__item-secondary-action">
+									<label class="demo-list-radio mdl-radio mdl-js-radio mdl-js-ripple-effect" for="label-list-option-1">
+										<input type="radio" id="label-list-option-1" class="mdl-radio__button" name="labeloptions" value="spkids" oninput="updateDataColor()" onchange="updateDataColor()" checked />
+									</label>
+								</span>
+							</li>
+
+							<li class="mdl-list__item">
+								<span class="mdl-list__item-primary-content">
+                                    GMM
+								</span>
+								<span class="mdl-list__item-secondary-action">
+									<label class="demo-list-radio mdl-radio mdl-js-radio mdl-js-ripple-effect" for="label-list-option-2">
+										<input type="radio" id="label-list-option-2" class="mdl-radio__button" name="labeloptions" value="gmmids" oninput="updateDataColor()" onchange="updateDataColor()" />
+									</label>
+								</span>
+							</li>
+
+							<li class="mdl-list__item">
+								<span class="mdl-list__item-primary-content">
+                                    AHC
+								</span>
+								<span class="mdl-list__item-secondary-action">
+									<label class="demo-list-radio mdl-radio mdl-js-radio mdl-js-ripple-effect" for="label-list-option-3">
+										<input type="radio" id="label-list-option-3" class="mdl-radio__button" name="labeloptions" value="ahcids" oninput="updateDataColor()" onchange="updateDataColor()" />
+									</label>
+								</span>
+							</li>
+
+		            	<a class="mdl-navigation__link" href="https://medium.com/@LeonFedden">Thanks to LeonFedden</a>
+	            	</nav>
+		        </div>
+		    <main class="mdl-layout__content">
+		    	<div id="waveform"></div>
+		    	<!-- <div id="wave-spectrogram"></div> -->
+			    <div class="page-content">
+					<!-- Your content goes here -->
+
+					<div id="container"></div>
+				</div>
+		    </main>
+		</div>
+
+		<!-- <script type="text/javascript" src="data.json"></script> -->
+		<script src='webaudiox.js'></script>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.css">
+		<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.css"></script> -->
+		<script type="text/javascript" src="http://code.jquery.com/jquery-1.7.1.min.js"></script>
+		<!-- <script src='https://requirejs.org/docs/release/2.3.6/minified/require.js'></script> -->
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.css"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.contextMenu.min.js"></script>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-contextmenu/2.7.1/jquery.ui.position.js"></script>
+		<script>
+			$(function(){
+		    $.contextMenu({
+	        selector: 'canvas', 
+	        build: function($trigger, e) {
+            // this callback is executed every time the menu is to be shown
+            // its results are destroyed every time the menu is hidden
+            // e is the original contextmenu event, containing e.pageX and e.pageY (amongst other data)
+            inRightClick = true;
+            return {
+                callback: function(key, options) {
+                		inRightClick = false;
+                    // var m = "clicked: " + key;
+                    // window.console && console.log(m) || alert(m); 
+                },
+                items: {
+                    "edit": {name: "Edit", icon: "edit"},
+                    "cut": {name: "Cut", icon: "cut"},
+                    "copy": {name: "Copy", icon: "copy"},
+                    "paste": {name: "Paste", icon: "paste"},
+                    "delete": {name: "Delete", icon: "delete"},
+                    "sep1": "---------",
+                    "quit": {name: "Quit", icon: function($element, key, item){ return 'context-menu-icon context-menu-icon-quit'; }}
+                }
+            };
+          }
+		    });
+			});
+			$(document).keydown(function(event){
+		    if(event.which=="17")
+	        cntrlIsPressed = true;
+			});
+			$(document).keyup(function(){
+		    cntrlIsPressed = false;
+			});
+			// wavesurfer initialization
+			var wavesurfer = WaveSurfer.create({
+			    container: '#waveform',
+			    waveColor: 'violet',
+			    progressColor: 'purple'
+			});
+			// var wavesurfer = WaveSurfer.create({
+			//     // your options here
+			//     plugins: [
+			//         WaveSurfer.spectrogram.create({
+			//             wavesurfer: wavesurfer,
+			//             container: "#wave-spectrogram",
+			//             labels: true
+			//         })
+			//     ]
+			// });
+			wavesurfer.on('ready', function () {
+   			 	wavesurfer.play();
+			});
+			// create WebAudio API context
+			var context = new AudioContext()
+
+			// Create lineOut
+			var lineOut = new WebAudiox.LineOut(context)
+			lineOut.volume = 0.4;
+
+			// var data = JSON.parse(points);
+			// var data = require('./data.json');
+			var data = (function () {
+		    var json = null;
+		    $.ajax({
+		        'async': false,
+		        'global': false,
+		        'url': './data.json',
+		        'dataType': "json",
+		        'success': function (data) {
+            	json = data;
+		        }
+		    });
+		    return json;
+			})(); 
+			var current_modelName = null;
+
+			// var filePaths = data[current_modelName]['paths'];
+
+			var renderer, scene, camera, stats;
+			var pointclouds;
+			var raycaster;
+			var mouse = new THREE.Vector2();
+			var intersection = null;
+			var spheres = [];
+			var spheresIndex = 0;
+			var clock;
+			// var mouseHasMoved = false;
+			var inRightClick = false;
+			var cntrlIsPressed = false;
+			var sound = null;
+			var interpolating = false;
+			var interpolatingAmount = 0;
+			var interpolationSpeed = 0.01;
+			var target = null; // data position
+			var previousSampleIndex = -1;
+			var threshold = 0.1;
+			var pointSize = 5;
+			var width = 150;
+			var length = 150;
+			var	idx2label = [];
+			var contorls = null;
+
+			var drawerWidth = document.getElementById("drawer").clientWidth;
+			var titleHeight = document.getElementById("header").clientHeight;
+			var waveformHeight = document.getElementById("waveform").clientHeight;
+			var renderWidth = window.innerWidth - drawerWidth;
+			var renderHeight = window.innerHeight - titleHeight - waveformHeight;
+
+			init();
+			animate();
+
+      function getOptionValue(optionId) {
+        var value = null;
+        var options = document.getElementsByClassName('mdl-radio__button');
+        for (var i = 0; options[i]; ++i) {
+          let id = options[i].id.toString();
+          if (options[i].checked && (id.indexOf(optionId) != -1)) {
+            value = options[i].value;
+            break;
+          }
+        }
+        return value;
+      }
+
+			function getDataPosition() {
+        let embedderOption = getOptionValue("embedder");
+        let visualOption = getOptionValue("visual");
+        let key = embedderOption.toString() + "_" + visualOption.toString();
+        current_modelName = key;
+				return normalizeDataPosition(data[key]['positions']);
+			}
+
+			function normalizeDataPosition(positions) {
+				var norm_positions = new Float32Array(positions.length * 3);
+				var min_x = 1e8;
+				var min_y = 1e8;
+				var max_x = -1e8;
+				var max_y = -1e8;
+				for (var i = 0; i < positions.length; ++i) {
+					min_x = min_x < positions[i][0] ? min_x: positions[i][0];
+					min_y = min_y < positions[i][1] ? min_y: positions[i][1];
+					max_x = max_x > positions[i][0] ? max_x: positions[i][0];
+					max_y = max_y > positions[i][1] ? max_y: positions[i][1];
+				}
+				// re-scale x,y to range [0,1];
+				for (var i = 0; i < positions.length; ++i) {
+					positions[i][0] = (positions[i][0] - min_x)/(max_x-min_x + 1e-8);
+					positions[i][1] = (positions[i][1] - min_y)/(max_y-min_y + 1e-8);
+				}
+				for (var i = 0; i < positions.length; ++i) {
+					let x = positions[i][0] - 0.5;
+					let y = positions[i][1] - 0.5;
+					let z = 0;
+					norm_positions[3 * i] = x;
+					norm_positions[3 * i + 1] = y;
+					norm_positions[3 * i + 2] = z;
+				}
+				return norm_positions;
+			}
+
+			function updateDataPosition() {
+				target = getDataPosition();
+				interpolating = true;
+				interpolatingAmount = 0;
+			}
+
+            // Label related
+			function getDataLabel() {
+        let labelOption = getOptionValue("label");
+				let key2 = labelOption.toString();
+				return data[current_modelName][key2];
+			}
+
+			function label_str2int(labels) {
+				var label2idx = new Map();
+				var idx2IntLabel = [];
+				idx2label = [];
+				for (var i = 0; i < labels.length; ++i) {
+					if (!label2idx.has(labels[i])) {
+						label2idx.set(labels[i], label2idx.size);
+						idx2label.push(labels[i]);
+					}
+					idx2IntLabel.push(label2idx.get(labels[i]) );
+				}
+				return idx2IntLabel;
+			}
+
+      function label2color(labels) {
+        var colors = new Float32Array(labels.length * 3);
+        var colormap = [];
+				// get idx2IntLabel and update idx2label
+				var idx2IntLabel = label_str2int(labels);
+				for (var i = 0; i < idx2label.length; ++i) {
+					let h = i / idx2label.length
+					colormap.push(new THREE.Color().setHSL(h, 0.60, 0.65));
+				}
+				for (var i = 0; i < labels.length; ++i) {
+					colors[3 * i] = colormap[idx2IntLabel[i]].r;
+					colors[3 * i + 1] = colormap[idx2IntLabel[i]].g;
+					colors[3 * i + 2] = colormap[idx2IntLabel[i]].b;
+				}
+        return colors;
+      }
+      function updateDataColor() {
+      	pointclouds[0].geometry.attributes.color.needsUpdate = true;
+				var colors = pointclouds[0].geometry.attributes.color.array;
+        var colormap = [];
+        var labels = getDataLabel();
+        var idx2IntLabel = label_str2int(labels);
+        for (var i = 0; i < idx2label.length; ++i) {
+					let h = i / idx2label.length
+					colormap.push(new THREE.Color().setHSL(h, 0.60, 0.65));
+				}
+				for (var i = 0; i < labels.length; ++i) {
+					colors[3 * i] = colormap[idx2IntLabel[i]].r;
+					colors[3 * i + 1] = colormap[idx2IntLabel[i]].g;
+					colors[3 * i + 2] = colormap[idx2IntLabel[i]].b;
+				}
+				return colors;
+      }
+
+      function updateDataAll() {
+      	updateDataPosition();
+      	updateDataColor();
+      }
+
+			function generatePointCloudGeometry(positions, labels) {
+				var geometry = new THREE.BufferGeometry();
+				// var positions = normalizeDataPosition(pos);
+        var colors = label2color(labels);
+				geometry.addAttribute('position', new THREE.BufferAttribute(positions, 3));
+				geometry.addAttribute('color', new THREE.BufferAttribute(colors, 3));
+				geometry.computeBoundingBox();
+				return geometry;
+			}
+
+			function generatePointcloud(positions, labels) {
+				var geometry = generatePointCloudGeometry(positions, labels);
+				var material = new THREE.PointsMaterial({
+					size: pointSize,
+					vertexColors: THREE.VertexColors,
+					sizeAttenuation: false
+				});
+				var pointcloud = new THREE.Points(geometry, material);
+				return pointcloud;
+			}
+
+			function init() {
+				var container = document.getElementById('container');
+				scene = new THREE.Scene();
+				clock = new THREE.Clock();
+				const near_plane = 2;
+				const far_plane = 100;
+
+				// Set up camera and scene
+				camera = new THREE.PerspectiveCamera(
+				    20,
+				    renderWidth / renderHeight,
+				    near_plane,
+				    far_plane
+				);
+				camera.applyMatrix( new THREE.Matrix4().makeTranslation( 0,0,40 ) );
+
+				let positions = getDataPosition();
+				let label = getDataLabel();
+				var pcBuffer = generatePointcloud(positions, label);
+				pcBuffer.scale.set(10, 10, 1);
+				pcBuffer.position.set(0, 0, 0);
+				scene.add( pcBuffer );
+
+				pointclouds = [ pcBuffer ];
+
+				var sphereGeometry = new THREE.SphereGeometry( 0.1, 32, 32 );
+				var sphereMaterial = new THREE.MeshBasicMaterial( { color: 0xff0000 } );
+
+				for ( var i = 0; i < 40; i++ ) {
+					var sphere = new THREE.Mesh( sphereGeometry, sphereMaterial );
+					scene.add( sphere );
+					spheres.push( sphere );
+				}
+
+				renderWidth = window.innerWidth - drawerWidth;
+				renderHeight = window.innerHeight - titleHeight - waveformHeight;
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio(window.devicePixelRatio);
+				renderer.setClearColor(0xffffff, 1);
+				renderer.setSize(renderWidth, renderHeight);
+				container.appendChild(renderer.domElement);
+
+				controls = new THREE.OrbitControls(camera, renderer.domElement, renderer, scene);
+				controls.mouseButtons = {
+					LEFT: THREE.MOUSE.PAN,
+					MIDDLE: THREE.MOUSE.DOLLY
+				}
+				controls.screenSpacePanning = true;
+				raycaster = new THREE.Raycaster();
+				raycaster.params.Points.threshold = threshold;
+
+				stats = new Stats();
+				container.appendChild( stats.dom );
+
+				window.addEventListener( 'resize', onWindowResize, false );
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				document.addEventListener( 'click', onDocumentMouseClick, false);
+				// document.oncontextmenu = function () {
+				// 	return false;
+				// }
+				document.addEventListener("contextmenu", function(e) {
+					console.log(e);
+				})
+			}
+
+			function onDocumentMouseMove( event ) {
+				if (inRightClick)
+					return;
+				// if (!cntrlIsPressed)
+				// 	return;
+				// mouseHasMoved = true;
+
+				titleHeight = document.getElementById("header").clientHeight;
+
+				if (window.innerWidth >= 1024) {
+					drawerWidth = document.getElementById("drawer").clientWidth;
+					mouse.x = ( (event.clientX - drawerWidth) / renderWidth ) * 2 - 1;
+				} else {
+					mouse.x = ( event.clientX /renderWidth ) * 2 - 1;
+				}
+				mouse.y = - ( (event.clientY - titleHeight - waveformHeight) / (renderHeight)) * 2 + 1;
+			}
+			function onDocumentMouseClick( event ) {
+
+				if (inRightClick) {
+					inRightClick = false;
+				}
+
+				raycaster.setFromCamera(mouse, camera);
+
+				var intersections = raycaster.intersectObjects( pointclouds );
+				intersection = (intersections.length) > 0 ? intersections[0] : null;
+
+				if (intersection !== null) {
+					// let filepath = 'demo4Embeddings' + filePaths[intersection.index];
+					let filepath = data[current_modelName]['paths'][intersection.index];
+					// load a sound and play it immediatly
+					let file = filepath;
+			    // WebAudiox.loadBuffer(context, file, function(buffer){
+			     //    // init AudioBufferSourceNode
+			     //    var source  = context.createBufferSource();
+			     //    source.buffer = buffer
+			     //    source.connect(lineOut.destination)
+
+			     //    // start the sound now
+			     //    source.start(0);
+			    // });
+			    wavesurfer.load(filepath);
+		    }
+			}
+			function onWindowResize() {
+
+				renderWidth = window.innerWidth - drawerWidth;
+				renderHeight = window.innerHeight - titleHeight - waveformHeight;
+
+				camera.aspect = renderWidth / renderHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( renderWidth, renderHeight );
+
+			}
+
+			function animate() {
+				camera.updateProjectionMatrix();
+				requestAnimationFrame(animate);
+
+				if (interpolating) {
+					pointclouds[0].geometry.attributes.position.needsUpdate = true;
+
+					var positions = pointclouds[0].geometry.attributes.position.array;
+
+					interpolatingAmount += interpolationSpeed;
+
+					if (interpolatingAmount >= 1.0) {
+						interpolating = false;
+						for (var i = 0; i < positions.length; ++i) {
+							positions[i] = target[i];
+						}
+					} else {
+						for (var i = 0; i < positions.length; i += 3) {
+							positions[i] = THREE.Math.lerp(positions[i], target[i], interpolatingAmount);
+							positions[i+1] = THREE.Math.lerp(positions[i+1], target[i+1], interpolatingAmount);
+						}
+					}
+				}
+
+				render();
+				stats.update();
+
+			}
+
+			var toggle = 0;
+
+			function render() {
+
+				raycaster.setFromCamera(mouse, camera);
+
+				var intersections = raycaster.intersectObjects( pointclouds );
+				intersection = (intersections.length) > 0 ? intersections[0] : null;
+
+				if (toggle > 0.02 && intersection !== null && cntrlIsPressed) {
+					if (previousSampleIndex != intersection.index) {
+						previousSampleIndex = intersection.index;
+						let currentdata = data[current_modelName];
+						let uttid = data[current_modelName]['uttids'][intersection.index];
+						let info_str = "";
+						// if ('spkids' in currentdata) {
+						// 	info_str += ' speaker id: ' + currentdata['spkids'][intersection.index];
+						// }
+						// if ('ahcids' in currentdata) {
+						// 	info_str += " AHC id: " + currentdata['ahcids'][intersection.index];
+						// }
+						if ('ahc_reports' in currentdata) {
+							info_str += "AHC_reports: " + currentdata['ahc_reports'][intersection.index];
+						}
+						// if ('gmmids' in currentdata) {
+						// 	info_str += " gmm id: " + currentdata['gmmids'][intersection.index];
+						// }
+						if ('gmm_reports' in currentdata) {
+							info_str += " gmm_reports: " + currentdata['gmm_reports'][intersection.index];
+						}
+						
+						// pointSize =  zoom / 8;
+						document.getElementById("fileinfo").innerHTML = info_str + ' uttid: ' + uttid;
+
+					}
+					let zoom = controls.target.distanceTo( controls.object.position );
+					// console.log("zoom: " + zoom);
+					spheres[spheresIndex].position.copy(intersection.point);
+					// var x = pointclouds[0].geometry.attributes.position.array[3*intersection.index];
+					// var y = pointclouds[0].geometry.attributes.position.array[3*intersection.index+1];
+					// console.log("pointCloud position: " + x + ',' + y );
+					// console.log("point position: " + intersection.point.x + ',' + intersection.point.y );
+					let scalar = 5*(10+zoom**2)/1600;
+					raycaster.params.Points.threshold = threshold*scalar;
+					// spheres[spheresIndex].position.x = x;
+					// spheres[spheresIndex].position.y = y;
+					spheres[spheresIndex].scale.set(scalar, scalar, scalar);
+					spheresIndex = (spheresIndex + 1) % spheres.length;
+
+					toggle = 0;
+				}
+
+				for (var i = 0; i < spheres.length; i++) {
+					var sphere = spheres[i];
+					sphere.scale.multiplyScalar(0.98);
+					sphere.scale.clampScalar(0.01, 1);
+				}
+
+				toggle += clock.getDelta();
+
+				renderer.render(scene, camera);
+
+			}
+
+		// 	$("#withAnim").click(function() {
+		//   var zoom = {
+		//     value: camera.zoom // from current zoom (no matter if it's more or less than 1)
+		//   };
+		//   var zoomEnd = {
+		//     value: 1 // to the zoom of 1
+		//   };
+		//   var tween = new TWEEN.Tween(zoom).to(zoomEnd, 500); // duration of tweening is 0.5 second
+		//   tween.onUpdate(function() {
+		//     camera.zoom = zoom.value;
+		//   });
+		//   tween.start();
+		// });
+
+		</script>
+
+	</body>
+
+</html>
